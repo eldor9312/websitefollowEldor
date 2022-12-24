@@ -12,10 +12,10 @@ import hashlib
 from telebot.util import async_dec
 from bs4 import BeautifulSoup
 import buttons
-from buttons import text_for_mistakes,text_to_notify,text_for_mistakes2,probability,password,password_quest,intro,question,message_for_new_admin,ask_what_to_do,wrong_password,wrong_link,ask_link,ans_link,site_deleted,login_admin,ask_del_link,admin,polzovatel,add_site,del_site_mess,back,news_on_polito,who_r_u,admin_func,polzovatel_func,time_tosleep
-token=''
+from buttons import text_for_mistakes,text_to_notify,text_for_mistakes2,probability,password,password_quest,intro,question,message_for_new_admin,ask_what_to_do,wrong_password,wrong_link,ask_link,ans_link,site_deleted,login_admin,ask_del_link,admin,polzovatel,add_site,del_site_mess,back,news_on_polito,who_r_u,admin_func,polzovatel_func,time_tosleep,no_mistakes,osn_site
+token='5874005632:AAHwKTTXnyOOMLjQe3S1xKW_Rlupi1dbhuA'
 bot=telebot.TeleBot(token)
-
+list_of_new=[]
 list_of_members=[]
 @bot.message_handler(commands=['start','help'])
 def get_user_info(message):
@@ -24,18 +24,20 @@ def get_user_info(message):
   bot.send_message(message.chat.id,intro())
   bot.send_message(message.chat.id,question(),reply_markup=buttons.who_r_u())
 
-
 @bot.message_handler(content_types=['text'])
 def answer(message):
   if message.text==polzovatel():
     bot.send_message(message.chat.id,ask_what_to_do(),reply_markup=buttons.polzovatel_func())
 
   if message.text==news_on_polito():
-    bot.send_message(message.chat.id,ans_link()) 
-    url='https://polito.uz/news/'  
-    checkupdates(url,message)
+    bot.send_message(message.chat.id,ans_link())
+    if not message.chat.id in list_of_new:
+        list_of_new.append(message.chat.id)
+    if not osn_site() in list_of_added:
+        list_of_added.append(osn_site())
+    if not len(list_of_new)>1:
+        checkupdates(osn_site())
 
-                           
   if message.text==admin() and message.chat.id in list_of_admins:
     bot.send_message(message.chat.id,login_admin())
     bot.send_message(message.chat.id,ask_what_to_do(),reply_markup=buttons.admin_func())
@@ -59,11 +61,11 @@ def answer(message):
     bot.register_next_step_handler(msg,admin_reg)
 
 
-def get_the_last_news(url,message):
+def get_the_last_news(url):
     news_links=get_linkss(url)[0]
     text=get_text(news_links)
     dict={}
-    text_to_send=' '
+    text_to_send=''
     for word in text:
         if not re.search('\W',word) and not re.search('^[0-9]',word): #and not re.search('^[A-Z]',i):
            word = Word(word)
@@ -73,9 +75,11 @@ def get_the_last_news(url,message):
     for word in dict:
         text_to_send +=text_for_mistakes2(word,dict)
     if not dict=={}:
-        bot.send_message(message.chat.id,text_for_mistakes(news_links,text_to_send))
-
-
+        for user in list_of_new:
+          bot.send_message(user,text_for_mistakes(news_links,text_to_send))
+    else:
+        for user in list_of_new:
+            bot.send_message(user,no_mistakes())
 
 
 list_of_admins=[]
@@ -103,10 +107,9 @@ def adding_site_to_notify(message):
       answer(message)
   else:
     bot.send_message(message.chat.id,ans_link())
-    checkupdates(message.text,message)
     if not message.text in list_of_added:
       list_of_added.append(message.text)
-
+    checkupdates(message.text)
 def del_site(message):
   if message.text in list_of_added:
     list_of_added.remove(message.text)
@@ -119,7 +122,7 @@ def del_site(message):
 
         
 @async_dec()
-def checkupdates(link,message):
+def checkupdates(link):
     url = Request(link,
         headers={'User-Agent': 'Mozilla/5.0'})  
     response = urlopen(url).read() 
@@ -135,10 +138,13 @@ def checkupdates(link,message):
             if newHash == currentHash:
                continue
             else:
-              for i in list_of_members:
-                bot.send_message(i,text_to_notify(link))
-              if link=='https://polito.uz/news/':  
-                get_the_last_news(url,message)
+              if link==osn_site():
+                for i in list_of_new:
+                    bot.send_message(i, text_to_notify(link))
+                get_the_last_news('https://polito.uz/news')
+              else:
+                  for i in list_of_members:
+                      bot.send_message(i, text_to_notify(link))
               response = urlopen(url).read()
               currentHash = hashlib.sha224(response).hexdigest()
               time.sleep(time_tosleep())
