@@ -120,5 +120,14 @@ def ask_del_link(text2):
     return text
 
 def time_tosleep():
-    time_sleep=int(30)
+    time_sleep=int(1)
     return time_sleep
+
+
+def no_mistakes():
+    no_mistakes="Ошибок нету"
+    return no_mistakes
+
+def osn_site():
+    site="https://polito.uz/news"
+    return site
