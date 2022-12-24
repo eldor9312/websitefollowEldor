@@ -13,7 +13,7 @@ from telebot.util import async_dec
 from bs4 import BeautifulSoup
 import buttons
 from buttons import text_for_mistakes,text_to_notify,text_for_mistakes2,probability,password,password_quest,intro,question,message_for_new_admin,ask_what_to_do,wrong_password,wrong_link,ask_link,ans_link,site_deleted,login_admin,ask_del_link,admin,polzovatel,add_site,del_site_mess,back,news_on_polito,who_r_u,admin_func,polzovatel_func,time_tosleep,no_mistakes,osn_site
-token='5874005632:AAHwKTTXnyOOMLjQe3S1xKW_Rlupi1dbhuA'
+token=''
 bot=telebot.TeleBot(token)
 list_of_new=[]
 list_of_members=[]
