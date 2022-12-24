@@ -5,7 +5,7 @@ This telegram bot checks for updates on site
 
 ## Before running this code make sure you have these libraries
 
-telebot
+pytelegrambotapi
 
 urllib.request
 
@@ -19,7 +19,7 @@ time
 
 hashlib
 
-bs4(BeautifulSoup)
+BeautifulSoup4
 
 
 ## To  start
